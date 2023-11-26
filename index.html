@@ -242,9 +242,9 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#way-2" class="md-nav__link">
+  <a href="#way-2-using-jamesivesgithub-pages-deploy-actionv4" class="md-nav__link">
     <span class="md-ellipsis">
-      Way 2
+      Way 2 - Using JamesIves/github-pages-deploy-action@v4
     </span>
   </a>
   
@@ -294,9 +294,9 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#way-2" class="md-nav__link">
+  <a href="#way-2-using-jamesivesgithub-pages-deploy-actionv4" class="md-nav__link">
     <span class="md-ellipsis">
-      Way 2
+      Way 2 - Using JamesIves/github-pages-deploy-action@v4
     </span>
   </a>
   
@@ -364,7 +364,50 @@ jobs:
 <li>Use <code>mkdocs gh-deploy</code></li>
 </ol>
 <p>This follows the documentation found <a href="https://www.mkdocs.org/user-guide/deploying-your-docs/">here</a>. The <code>ci.yml</code> is copied from the <a href="https://squidfunk.github.io/mkdocs-material/publishing-your-site/">Material for Mkdocs documentation</a>.</p>
-<h2 id="way-2">Way 2</h2>
+<h2 id="way-2-using-jamesivesgithub-pages-deploy-actionv4">Way 2 - Using <a href="https://github.com/JamesIves/github-pages-deploy-action"><code>JamesIves/github-pages-deploy-action@v4</code></a></h2>
+<p>In your <code>.github/workflows/ci.yml</code>:</p>
+<pre><code class="language-yaml">name: ci 
+on:
+  push:
+    branches:
+      - main
+permissions:
+  contents: write
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v4
+        with:
+          python-version: 3.x
+      - run: echo &quot;cache_id=$(date --utc '+%V')&quot; &gt;&gt; $GITHUB_ENV
+
+      - uses: actions/cache@v3
+        with:
+          key: mkdocs-material-${{ env.cache_id }}
+          path: .cache
+          restore-keys: |
+            mkdocs-material-
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Build docs
+        run: |
+          mkdocs build
+
+      - name: Deploy to gh-pages 🚀
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          branch: gh-pages
+          folder: site
+          force: false
+</code></pre>
+<p>This has the added benefit of trying nice commit history in your <code>gh-pages</code> branch.</p>
 
 
 
